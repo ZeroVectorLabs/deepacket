@@ -15,6 +15,8 @@
   <a href="https://zerovectorlabs.github.io/deepacket/"><b>Open Deepacket in your browser</b></a>
   &nbsp;·&nbsp;
   <a href="https://zerovectorlabs.github.io/deepacket/attack_scenario.pcap">Download the sample attack capture</a>
+  &nbsp;·&nbsp;
+  <a href="docs/media/deepacket_demo.mp4">Watch the 75-second demo</a>
 </p>
 
 <p align="center">

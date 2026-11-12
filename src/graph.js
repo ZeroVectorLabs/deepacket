@@ -60,9 +60,9 @@ function makeGraph(host) {
     if (role === 'Attacker' || role === 'Rogue insider') icon = 'attacker'; if (role === 'C2 server' || role === 'Malware host') icon = 'c2';
     let sub = names.get(ip) || '';
     if (!sub) sub = gwIps.has(ip) ? 'Gateway' + (sv.length ? ', ' + sv.slice(0, 2).join(', ') : '') : sv.length ? sv.slice(0, 3).join(', ') + ' server' : zone === 'lan' ? (isIp(ip) ? 'Workstation' : 'Unknown device') : 'Internet host';
-    mk({ id: ip, label: ip, sub, icon, zone, role, h, bytes: h.tx + h.rx, isServer: sv.length > 0 });
+    mk({ id: ip, label: ip, sub, icon, zone, role, host: h, bytes: h.tx + h.rx, isServer: sv.length > 0 });
   }
-  for (const g of groups.values()) mk({ id: g.key, label: '+' + g.members.length + (g.zone === 'wan' ? ' internet hosts' : ' local hosts'), sub: (g.why || 'via') + ' ' + g.peer, icon: g.zone === 'wan' ? 'cloud' : 'group', zone: g.zone, group: g, h: { ip: g.key, tx: g.tx, rx: g.rx }, bytes: g.tx + g.rx });
+  for (const g of groups.values()) mk({ id: g.key, label: '+' + g.members.length + (g.zone === 'wan' ? ' internet hosts' : ' local hosts'), sub: (g.why || 'via') + ' ' + g.peer, icon: g.zone === 'wan' ? 'cloud' : 'group', zone: g.zone, group: g, host: { ip: g.key, tx: g.tx, rx: g.rx }, bytes: g.tx + g.rx });
   const resolve = ip => byId.has(ip) ? ip : (groupOf.has(ip) && byId.has(groupOf.get(ip)) ? groupOf.get(ip) : null);
   const emap = new Map();
   for (const p of A.pairs.values()) {
@@ -244,7 +244,7 @@ function makeGraph(host) {
     const g = e.target.closest('.mnode'), ed = e.target.closest('.ehit'), b = e.target.closest('.badge');
     const n = g ? byId.get(g.dataset.n) : null;
     if (n !== G.hover) { G.hover = n; redraw(); }
-    if (n) tip(`<div class="tt-h ${n.group ? '' : 'mono'}">${esc(n.label)}</div><div class="tt-r"><span>${esc(n.sub)}</span></div>${n.role ? `<div class="tt-r"><span>Role in attack</span><b>${esc(n.role)}</b></div>` : ''}<div class="tt-r"><span><i style="background:var(--s1)"></i>Sent</span><b>${fmtBytes(n.h.tx)}</b></div><div class="tt-r"><span><i style="background:var(--s2)"></i>Received</span><b>${fmtBytes(n.h.rx)}</b></div><div class="hint" style="margin-top:4px">Drag to move. Double-click to filter.</div>`, e);
+    if (n) tip(`<div class="tt-h ${n.group ? '' : 'mono'}">${esc(n.label)}</div><div class="tt-r"><span>${esc(n.sub)}</span></div>${n.role ? `<div class="tt-r"><span>Role in attack</span><b>${esc(n.role)}</b></div>` : ''}<div class="tt-r"><span><i style="background:var(--s1)"></i>Sent</span><b>${fmtBytes(n.host.tx)}</b></div><div class="tt-r"><span><i style="background:var(--s2)"></i>Received</span><b>${fmtBytes(n.host.rx)}</b></div><div class="hint" style="margin-top:4px">Drag to move. Double-click to filter.</div>`, e);
     else if (b) tip(b.dataset.ids.split(',').map(id => { const d = cap.threats[+id]; return `<div style="margin:2px 0">${sevBadge(d.sev)} <b>${steps.get(d.id)}.</b> ${esc(d.title)}</div>`; }).join('') + '<div class="hint" style="margin-top:4px">Click to open in the attack flow</div>', e);
     else if (ed) { const x = edges[+ed.dataset.e]; const pr = [...x.protos.entries()].sort((a, c) => c[1] - a[1]).slice(0, 4); tip(`<div class="tt-h mono">${esc(x.a.label)} ⇄ ${esc(x.b.label)}</div>${pr.map(([p, v]) => `<div class="tt-r"><span><i style="background:${col(p)}"></i>${esc(p)}</span><b>${fmtBytes(v)}</b></div>`).join('')}${x.t ? `<div class="tt-r"><span>${sevBadge(x.t.sev)}</span><b>${x.t.ids.length} detection${x.t.ids.length > 1 ? 's' : ''}</b></div>` : ''}`, e); }
     else untip();

@@ -1,0 +1,12 @@
+node_modules/
+__pycache__/
+*.pyc
+.DS_Store
+.vscode/
+.idea/
+*.log
+# local captures you open for analysis should never be committed by accident
+*.pcap
+*.pcapng
+*.cap
+!samples/*.pcap

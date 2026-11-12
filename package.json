@@ -1,0 +1,13 @@
+{
+  "name": "deeppacket",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Browser-based PCAP visualizer with threat detection, attack-flow reconstruction and artifact extraction.",
+  "scripts": {
+    "build": "python3 tools/build.py",
+    "test": "node --test tests/*.test.mjs",
+    "test:browser": "python3 tests/smoke_browser.py",
+    "sample": "python3 tools/gen_attack_pcap.py"
+  },
+  "engines": { "node": ">=20" }
+}

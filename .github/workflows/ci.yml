@@ -1,0 +1,28 @@
+name: CI
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Engine tests
+        run: npm test
+      - name: Build bundle
+        run: npm run build
+      - name: Check the committed bundle is up to date
+        run: git diff --exit-code -- dist/deeppacket.html || (echo "dist/deeppacket.html is stale. Run 'npm run build' and commit it." && exit 1)
+      - name: Browser smoke test
+        run: |
+          pip install playwright
+          python -m playwright install --with-deps chromium
+          npm run test:browser

@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeepPacket — PCAP Visualizer & Threat Analyzer</title>
+<style>/*FONTS*/
+/*CSS*/</style>
+</head>
+<body>
+<header class="chrome">
+<div class="topbar">
+  <div class="brand" id="brand"><span class="glyph" aria-hidden="true"><i></i><i></i><i></i><i></i></span>DeepPacket</div>
+  <div class="filemeta hidden" id="filemeta"></div>
+  <nav class="tabs hidden" id="tabs">
+    <button class="tab" data-view="overview">Overview</button>
+    <button class="tab" data-view="threats">Threats <span class="badge ok" id="tbadge">0</span></button>
+    <button class="tab" data-view="conversations">Network map</button>
+    <button class="tab" data-view="packets">Packets</button>
+    <button class="tab" data-view="artifacts">Artifacts <span class="badge ok" id="abadge">…</span></button>
+    <button class="tab" data-view="insights">DNS, TLS &amp; HTTP</button>
+  </nav>
+  <div class="actions">
+    <button class="btn hidden" id="openBtn2">Open file</button>
+    <button class="btn icon ghost" id="themeBtn" title="Switch light or dark"></button>
+  </div>
+</div>
+<div class="strip hidden" id="strip"><canvas id="stripcv"></canvas><div class="ends"><span id="strip0"></span><span class="hint" id="stripmid">Drag across the capture to focus on a time window</span><span id="strip1"></span></div></div>
+<div class="filterbar hidden" id="filterbar">
+  <div class="fx" id="fx"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M20 20l-3.5-3.5"/></svg>
+    <input id="fin" spellcheck="false" autocomplete="off" placeholder="Filter packets, e.g.  ip:10.0.0.20  port:443  dns  !arp  len>1000  syn or rst"><kbd>/</kbd></div>
+  <div class="chips" id="chips"></div>
+  <span class="fcount" id="fcount"></span>
+  <button class="btn sm ghost" id="helpBtn">Filter syntax</button>
+</div>
+</header>
+
+<main>
+  <section id="landing" class="on">
+    <div class="hero">
+      <h1>Open a capture.<br>Find the attack in it.</h1>
+      <div>
+        <p class="lead">DeepPacket decodes .pcap and .pcapng files in this browser tab, charts the traffic, maps who talked to whom, and reconstructs any intrusion step by step against MITRE ATT&amp;CK.</p>
+        <div class="row">
+          <button class="btn primary lg" id="openBtn">Choose a capture file</button>
+          <button class="btn lg" id="demoBtn">Open the sample attack</button>
+        </div>
+        <p class="fine">Or drop a file anywhere on this page. Nothing is uploaded.</p>
+      </div>
+    </div>
+    <div class="specimen">
+      <div class="frame" id="specimen" title="Open the sample attack"><canvas id="speccv"></canvas><div class="ld" id="specld">Decoding the sample capture…</div>
+        <div class="cap"><span id="speccap">The sample capture</span><span id="speclg"></span></div></div>
+    </div>
+    <div class="uses">
+      <div><h4>Traffic</h4><p>Throughput by protocol over time, top talkers, services and packet sizes. Every chart follows the time window and filter you set.</p></div>
+      <div><h4>Threats</h4><p>Scans, brute force, web exploits, reverse shells, beaconing, DNS tunnelling, exfiltration, ARP spoofing and floods, ordered into an attack flow.</p></div>
+      <div><h4>Network map</h4><p>Your local network on one side, the internet on the other, with attack paths drawn as arrows between the hosts involved.</p></div>
+      <div><h4>Packets</h4><p>A packet list that stays fast at a million rows, with linked protocol tree and hex view, and full TCP stream reassembly.</p></div>
+    </div>
+  </section>
+
+  <section class="view" id="view-overview"></section>
+  <section class="view" id="view-threats"></section>
+  <section class="view" id="view-conversations"></section>
+  <section class="view" id="view-packets"></section>
+  <section class="view" id="view-artifacts"></section>
+  <section class="view" id="view-insights"></section>
+</main>
+
+<div id="tooltip"></div>
+<div class="overlay" id="modal"><div class="modal"><div class="modal-h"><h3 id="mtitle"></h3><button class="btn sm ghost" id="mclose">Close ✕</button></div><div class="modal-b" id="mbody"></div></div></div>
+<div class="overlay loading" id="loading"><div class="box"><h3 id="ltitle">Analyzing capture…</h3><p id="ltext">Reading packets</p><div class="prog"><i id="lbar"></i></div></div></div>
+<div class="dropzone-full" id="dzf"><div>Drop the capture to open it</div></div>
+<div class="toast" id="toast"></div>
+<input type="file" id="file" accept=".pcap,.pcapng,.cap,.dmp,.pcap.gz,application/vnd.tcpdump.pcap" hidden>
+<script id="demo-data" type="application/octet-stream">/*DEMO*/</script>
+<script>
+/*JS*/
+</script>
+</body>
+</html>

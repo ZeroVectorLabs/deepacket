@@ -5,7 +5,7 @@ src = ROOT / 'src'
 html = (src/'shell.html').read_text()
 js = '\n'.join((src/f).read_text() for f in ['core.js','analysis.js','artifacts.js','ui.js','graph.js','strip.js','art.js'])
 assert '</script' not in js
-demo = base64.b64encode(gzip.compress((ROOT / 'samples' / 'attack_scenario.pcap').read_bytes(), 9)).decode()
+demo = base64.b64encode(gzip.compress((ROOT / 'samples' / 'attack_scenario.pcap').read_bytes(), 9, mtime=0)).decode()
 def ff(name, file, w, extra=''):
     d = base64.b64encode((ROOT / 'fonts' / file).read_bytes()).decode()
     return "@font-face{font-family:'%s';src:url(data:font/woff2;base64,%s) format('woff2');font-weight:%s;font-style:normal;font-display:swap;%s}\n" % (name, d, w, extra)

@@ -1,4 +1,4 @@
-"""Bundle src/, fonts and the sample capture into one self-contained HTML file: dist/deeppacket.html."""
+"""Bundle src/, fonts and the sample capture into one self-contained HTML file: dist/deepacket.html."""
 import base64, gzip, pathlib
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 src = ROOT / 'src'
@@ -14,5 +14,5 @@ logo = lambda n: 'data:image/png;base64,' + base64.b64encode((ROOT / 'assets' / 
 html = html.replace('/*FONTS*/', fonts).replace('/*LOGO64*/', logo(64)).replace('/*LOGO256*/', logo(256))
 html = html.replace('/*CSS*/', (src/'style.css').read_text()).replace('/*JS*/', js).replace('/*DEMO*/', demo)
 (ROOT / 'dist').mkdir(exist_ok=True)
-(ROOT / 'dist' / 'deeppacket.html').write_text(html)
+(ROOT / 'dist' / 'deepacket.html').write_text(html)
 print('built', len(html)//1024, 'KB')

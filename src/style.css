@@ -1,4 +1,4 @@
-/* DeepPacket — instrument-slate theme. Colour is reserved for data and alerts. */
+/* Deepacket — instrument-slate theme. Colour is reserved for data and alerts. */
 :root, :root[data-theme="dark"] {
   color-scheme: dark;
   --bg: #06111f; --panel: #0c1a2e; --panel-2: #11233d; --panel-3: #19304f; --hover: rgba(103,232,249,.05);

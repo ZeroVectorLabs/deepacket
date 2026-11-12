@@ -1,4 +1,4 @@
-"""Browser smoke test: opens dist/deeppacket.html, loads the sample and visits every view.
+"""Browser smoke test: opens dist/deepacket.html, loads the sample and visits every view.
 
 Needs Python Playwright and a Chromium/Chrome build:  pip install playwright && playwright install chromium
 Run:  python3 tests/smoke_browser.py   (exits non-zero on any page error; set CHROME_PATH to use an installed Chrome)
@@ -16,7 +16,7 @@ async def main():
         page = await browser.new_page(viewport={'width': 1440, 'height': 900})
         page.on('pageerror', lambda e: errors.append(str(e)))
         page.on('console', lambda m: errors.append(m.text) if m.type == 'error' else None)
-        await page.goto((ROOT / 'dist' / 'deeppacket.html').as_uri())
+        await page.goto((ROOT / 'dist' / 'deepacket.html').as_uri())
         await page.click('#demoBtn')
         await page.wait_for_selector('#view-overview.on', timeout=20000)
         for v in VIEWS:

@@ -338,7 +338,7 @@ http(9.0, '10.0.0.31', '10.0.0.20', http_req('POST', '/login', 'intranet.corp.lo
 # alice falls for a fake installer (harmless PE-shaped stand-in)
 dns(46.0, '10.0.0.15', 'files-share-cdn.top', ['185.220.101.45'])
 http(46.1, '10.0.0.15', '185.220.101.45', http_req('GET', '/dl/invoice_viewer_setup.exe', 'files-share-cdn.top', BROWSER_UA),
-     http_resp(200, 'OK', fake_pe(b'DeepPacket sample - not a real program'), 'application/x-msdownload', b'nginx').replace(b'Content-Length', b'Content-Disposition: attachment; filename="invoice_viewer_setup.exe"\r\nContent-Length'))
+     http_resp(200, 'OK', fake_pe(b'Deepacket sample - not a real program'), 'application/x-msdownload', b'nginx').replace(b'Content-Length', b'Content-Disposition: attachment; filename="invoice_viewer_setup.exe"\r\nContent-Length'))
 # email with an attachment over cleartext SMTP (AUTH PLAIN)
 ms = TcpSess('10.0.0.31', '10.0.0.25', 25)
 MACS['10.0.0.25'] = '00:50:56:aa:00:19'
@@ -466,7 +466,7 @@ for frm, data in convo:
 
 # 2g2. Second-stage payload disguised as an image (harmless ELF-shaped stand-in)
 http(79.5, WEB, C2, http_req('GET', '/img/kworker.jpg', '198.51.100.23', 'Wget/1.21.2'),
-     http_resp(200, 'OK', fake_elf(b'DeepPacket sample - not a real program'), 'image/jpeg', b'nginx/1.18.0'))
+     http_resp(200, 'OK', fake_elf(b'Deepacket sample - not a real program'), 'image/jpeg', b'nginx/1.18.0'))
 
 # 2h. C2 beaconing over HTTP every ~10s (T1071.001)
 for i in range(9):

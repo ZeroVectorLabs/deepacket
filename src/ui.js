@@ -601,7 +601,7 @@ function renderInsights() {
 function renderThreats() {
   const el = $('#view-threats'), cap = S.cap, D = cap.threats, F = cap.flow;
   if (!D.length) {
-    el.innerHTML = `<div class="clean-state"><div class="ic">${SVGI(IC.check, 30)}</div><h2>No threats detected</h2><p>DeepPacket checked ${fmtNum(cap.pk.length)} packets for port scans, host sweeps, brute force, web exploits (SQLi, XSS, traversal, command injection, Log4Shell, Shellshock), cleartext credentials, ARP spoofing, rogue DHCP, reverse shells, beaconing, DNS tunneling, DGA, exfiltration and floods. Nothing matched.</p><p class="hint" style="margin-top:12px">Detection is heuristic. A clean result does not prove the traffic is benign.</p></div>`;
+    el.innerHTML = `<div class="clean-state"><div class="ic">${SVGI(IC.check, 30)}</div><h2>No threats detected</h2><p>Deepacket checked ${fmtNum(cap.pk.length)} packets for port scans, host sweeps, brute force, web exploits (SQLi, XSS, traversal, command injection, Log4Shell, Shellshock), cleartext credentials, ARP spoofing, rogue DHCP, reverse shells, beaconing, DNS tunneling, DGA, exfiltration and floods. Nothing matched.</p><p class="hint" style="margin-top:12px">Detection is heuristic. A clean result does not prove the traffic is benign.</p></div>`;
     return;
   }
   const cnt = s => D.filter(d => d.sev === s).length;

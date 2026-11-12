@@ -61,7 +61,7 @@ function artFiles() {
     <div class="artgrid"><div id="flist"></div><div class="card fprev" id="fprev"></div></div>`;
   $$('[data-kf]', body).forEach(b => b.onclick = () => { st.kf = b.dataset.kf; artFiles(); });
   $$('.seg [data-v]', body).forEach(b => b.onclick = () => { st.view = b.dataset.v; if (st.view === 'gallery') st.kf = 'image'; artFiles(); });
-  if ($('#dlall')) $('#dlall').onclick = () => offerSave('deeppacket_' + st.kf + '_files.zip', makeZip(list.map(f => ({ name: f.name, data: f.data }))));
+  if ($('#dlall')) $('#dlall').onclick = () => offerSave('deepacket_' + st.kf + '_files.zip', makeZip(list.map(f => ({ name: f.name, data: f.data }))));
   const fl = $('#flist');
   if (!list.length) fl.innerHTML = '<div class="empty">No files of this kind were found in the capture. Files can only be recovered from unencrypted transfers such as HTTP, FTP and SMTP.</div>';
   else if (st.view === 'gallery') {
@@ -80,7 +80,7 @@ function filePreview() {
   if (!f) { el.innerHTML = '<div class="empty">Select a file to preview it</div>'; return; }
   let prev = '';
   if (f.kind === 'image' && f.type.ext !== 'svg') prev = `<div class="pimg"><img src="${blobUrl(f)}" alt="${esc(f.name)}"></div>`;
-  else if (f.kind === 'exe') prev = `<div class="pwarn">${SVGI(SEV_ICON.high, 18)}<div><b>Executable content.</b> DeepPacket never runs or renders it. Saving wraps it in a .zip so it cannot be opened by accident. Check the hash with your threat-intel tools first.</div></div>` + hexPreview(f.data, 128);
+  else if (f.kind === 'exe') prev = `<div class="pwarn">${SVGI(SEV_ICON.high, 18)}<div><b>Executable content.</b> Deepacket never runs or renders it. Saving wraps it in a .zip so it cannot be opened by accident. Check the hash with your threat-intel tools first.</div></div>` + hexPreview(f.data, 128);
   else if (['text', 'html', 'script'].includes(f.kind) || f.type.ext === 'json') prev = `<pre class="ptext">${esc(new TextDecoder('utf-8', { fatal: false }).decode(f.data.subarray(0, 12000)))}${f.size > 12000 ? '\n…' : ''}</pre>`;
   else if (f.type.ext === 'pdf') { const t = latin(f.data, 0, Math.min(f.size, 200000)); const txt = [...t.matchAll(/\(([^()]{2,200})\)\s*Tj/g)].map(m => m[1]).slice(0, 40).join('\n'); prev = (txt ? `<pre class="ptext">${esc(txt)}</pre><p class="hint" style="margin:6px 0 0">Text strings found in the PDF.</p>` : '') + hexPreview(f.data, 128); }
   else if (f.type.ext === 'zip') { const names = zipNames(f.data); prev = names.length ? `<div class="hint" style="margin-bottom:6px">${names.length} entries</div><pre class="ptext">${esc(names.join('\n'))}</pre>` : hexPreview(f.data, 256); }
@@ -113,14 +113,14 @@ function artCreds() {
   body.innerHTML = `<div class="atools"><p class="hint" style="margin:0;max-width:90ch">Credentials and secrets that crossed the network without encryption. Anyone on the path could read them, so treat each one as compromised.</p><span class="sp"></span><button class="btn sm" id="crev">${st.revealAll ? 'Hide' : 'Reveal'} all secrets</button>${S.dl ? '<button class="btn sm" id="ccsv">Save as .csv</button>' : '<button class="btn sm" id="ccsv">Copy as CSV</button>'}</div>
   ${A.creds.length ? `<div class="card"><table class="tbl"><thead><tr><th class="r">Time</th><th>Protocol</th><th>Client</th><th>Server</th><th>Username</th><th>Password or secret</th><th>Where</th><th></th></tr></thead><tbody>${A.creds.map(c => { const shown = st.revealAll || st.reveal.has(c.id); return `<tr data-c="${c.id}"><td class="r">+${fmtRel(c.t - S.cap.t0, S.cap.dur)}</td><td><b style="font-weight:600">${esc(c.proto)}</b></td><td class="mono">${esc(c.src)}</td><td class="mono">${esc(c.dst)}</td><td class="mono">${esc(c.user || '—')}</td><td class="mono secret">${esc(shown ? c.pw : mask(c.pw))} <button class="btn sm ghost" data-rv="${c.id}">${shown ? 'Hide' : 'Reveal'}</button></td><td class="mono ell" style="max-width:220px">${esc(c.extra || '')}</td><td><button class="btn sm ghost" data-pk="${c.id}">Packet</button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="empty">No cleartext credentials were found. Logins over TLS, SSH and other encrypted protocols cannot be read from a capture.</div>'}`;
   $('#crev').onclick = () => { st.revealAll = !st.revealAll; artCreds(); };
-  $('#ccsv').onclick = () => S.dl ? offerSave('deeppacket_credentials.csv', csv()) : navigator.clipboard.writeText(csv()).then(() => toast('Copied ' + A.creds.length + ' rows as CSV'), () => toast('Clipboard unavailable'));
+  $('#ccsv').onclick = () => S.dl ? offerSave('deepacket_credentials.csv', csv()) : navigator.clipboard.writeText(csv()).then(() => toast('Copied ' + A.creds.length + ' rows as CSV'), () => toast('Clipboard unavailable'));
   $$('[data-rv]', body).forEach(b => b.onclick = e => { e.stopPropagation(); const id = +b.dataset.rv; st.reveal.has(id) ? st.reveal.delete(id) : st.reveal.add(id); artCreds(); });
   $$('[data-pk]', body).forEach(b => b.onclick = () => { const c = A.creds.find(x => x.id === +b.dataset.pk); if (c && c.ev && c.ev[0] !== undefined) { go('packets'); selectPacket(c.ev[0], true); } });
 }
 
 function artIocs() {
   const I = S.cap.art.iocs, body = $('#artbody');
-  const txt = () => ['# DeepPacket indicators — ' + S.cap.name, '', '## External IP addresses', ...I.ips.map(o => o.v), '', '## Domains', ...I.domains.map(o => o.v), '', '## URLs', ...I.urls.map(o => o.v), '', '## User agents', ...I.uas.map(o => o.v), '', '## Email addresses', ...I.emails.map(o => o.v), '', '## File hashes (SHA-256)', ...I.hashes.map(o => o.v + '  ' + o.name)].join('\n');
+  const txt = () => ['# Deepacket indicators — ' + S.cap.name, '', '## External IP addresses', ...I.ips.map(o => o.v), '', '## Domains', ...I.domains.map(o => o.v), '', '## URLs', ...I.urls.map(o => o.v), '', '## User agents', ...I.uas.map(o => o.v), '', '## Email addresses', ...I.emails.map(o => o.v), '', '## File hashes (SHA-256)', ...I.hashes.map(o => o.v + '  ' + o.name)].join('\n');
   const bad = b => b ? ' <span class="sev high" style="padding:0 6px">' + SVGI(SEV_ICON.high, 12) + 'Linked to a detection</span>' : '';
   const card = (title, sub, head, rows) => `<div class="card c6"><div class="card-h"><h3>${title}</h3><span class="sub">${sub}</span></div><div class="card-b"><div class="scroll" style="max-height:360px"><table class="tbl"><thead><tr>${head}</tr></thead><tbody>${rows || '<tr><td class="empty" colspan="4">None found</td></tr>'}</tbody></table></div></div></div>`;
   body.innerHTML = `<div class="atools"><p class="hint" style="margin:0;max-width:90ch">Everything external this capture touched, ready to paste into a blocklist, SIEM search or threat-intel lookup.</p><span class="sp"></span><button class="btn sm" id="icopy">Copy all as text</button>${S.dl ? '<button class="btn sm" id="isave">Save as .txt</button>' : ''}</div>
@@ -133,7 +133,7 @@ function artIocs() {
   ${card('File hashes', I.hashes.length + ' recovered files', '<th>SHA-256</th><th>File</th>', I.hashes.map(o => `<tr><td class="mono hash" style="max-width:300px">${o.v}</td><td>${esc(o.name)}${o.bad ? bad(true) : ''}</td></tr>`).join(''))}
   </div>`;
   $('#icopy').onclick = () => navigator.clipboard.writeText(txt()).then(() => toast('Indicators copied'), () => toast('Clipboard unavailable'));
-  if ($('#isave')) $('#isave').onclick = () => offerSave('deeppacket_indicators.txt', txt());
+  if ($('#isave')) $('#isave').onclick = () => offerSave('deepacket_indicators.txt', txt());
   $$('[data-ip]', body).forEach(r => r.onclick = () => { setChip('host', { v: r.dataset.ip }); go('packets'); });
   $$('[data-pi]', body).forEach(r => r.onclick = () => { go('packets'); selectPacket(+r.dataset.pi, true); });
 }

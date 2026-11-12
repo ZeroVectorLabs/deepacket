@@ -83,7 +83,7 @@ function drawSpecimen() {
   $('#specld').style.display = 'none';
   paintStrip($('#speccv'), cap, null, order, { flags: true, colW: 5 });
   const step = cap.dur / Math.max(10, Math.floor($('#speccv').getBoundingClientRect().width / 5));
-  $('#speccap').innerHTML = `<b>The sample capture.</b> ${fmtNum(cap.pk.length)} packets over ${fmtDur(cap.dur)}. Each column is ${fmtDur(step)} of traffic, coloured by its busiest protocol. Red markers are the ${cap.threats.length} attack steps DeepPacket finds in it.`;
+  $('#speccap').innerHTML = `<b>The sample capture.</b> ${fmtNum(cap.pk.length)} packets over ${fmtDur(cap.dur)}. Each column is ${fmtDur(step)} of traffic, coloured by its busiest protocol. Red markers are the ${cap.threats.length} attack steps Deepacket finds in it.`;
   $('#speclg').innerHTML = order.slice(0, 5).map((p, i) => `<span class="lg" style="cursor:default"><i style="background:var(--s${i + 1})"></i>${esc(p)}</span>`).join('');
 }
 $('#specimen').addEventListener('click', loadDemo);

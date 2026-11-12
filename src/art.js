@@ -31,9 +31,38 @@ async function offerSave(filename, data) {
     const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 30000); return;
   }
-  if (!S.dl) { toast('Saving files is not available in this view.'); return; }
+  if (!S.dl) { noSaveDialog(filename); return; }
   try { await S.dl.save({ filename, data }); }
   catch (e) { if (e && e.code === 'declined') return; toast(e && e.code === 'rejected_extension' ? 'That file type cannot be saved here.' : 'Could not save: ' + ((e && (e.message || e.code)) || e)); }
+}
+function noSaveDialog(filename) {
+  $('#mtitle').textContent = 'Saving is blocked in this view';
+  $('#mbody').innerHTML = `<div class="help"><p>This copy of Deepacket is embedded in a page that does not allow downloads, so <b>${esc(filename)}</b> could not be saved.</p><p style="margin-top:10px">Open Deepacket on its own site, load the same capture, and every Save button will download normally:</p><p style="margin-top:14px"><a class="btn primary" href="https://zerovectorlabs.github.io/deepacket/" target="_blank" rel="noopener">Open zerovectorlabs.github.io/deepacket</a></p><p class="hint" style="margin-top:12px">You can also download <span class="mono">dist/deepacket.html</span> from the GitHub repository and open it from your computer.</p></div>`;
+  $('#modal').classList.add('on');
+}
+const KIND_FOLDER = { exe: 'executables', script: 'scripts', image: 'images', doc: 'documents', archive: 'archives', text: 'text', data: 'other', media: 'media', html: 'web-pages' };
+const csvRow = a => a.map(v => '"' + String(v ?? '').replace(/"/g, '""') + '"').join(',');
+function artifactsBundle() {
+  const cap = S.cap, A = cap.art, base = cap.name.replace(/\.(pcapng|pcap|cap|gz)$/gi, '') || 'capture';
+  const entries = [];
+  const manifest = [csvRow(['path', 'type', 'size_bytes', 'md5', 'sha256', 'transfer', 'from', 'to', 'first_seen_utc', 'times_seen', 'source_url', 'flags', 'detection'])];
+  const used = new Map();
+  for (const f of A.files) {
+    let path = 'files/' + KIND_FOLDER[f.kind] + '/' + f.name.replace(/[\\:*?"<>|]/g, '_');
+    const n = used.get(path) || 0; used.set(path, n + 1);
+    if (n) path = path.replace(/(\.\w+)?$/, '_' + n + '$1');
+    entries.push({ name: path, data: f.data });
+    manifest.push(csvRow([path, f.type.label, f.size, f.md5, f.sha256, f.via, f.occ[0].src, f.occ[0].dst, new Date(f.occ[0].t * 1000).toISOString(), f.occ.length, f.url || '', f.flags.map(x => x.sev + ': ' + x.t).join('; '), f.det ? f.det.title : '']));
+  }
+  const enc = s => new TextEncoder().encode(s);
+  entries.push({ name: 'manifest.csv', data: enc(manifest.join('\n') + '\n') });
+  entries.push({ name: 'credentials.csv', data: enc([csvRow(['time_utc', 'protocol', 'client', 'server', 'username', 'secret', 'where'])].concat(A.creds.map(c => csvRow([new Date(c.t * 1000).toISOString(), c.proto, c.src, c.dst, c.user, c.pw, c.extra || '']))).join('\n') + '\n') });
+  const I = A.iocs;
+  entries.push({ name: 'indicators.txt', data: enc(['# Deepacket indicators: ' + cap.name, '', '## External IP addresses', ...I.ips.map(o => o.v), '', '## Domains', ...I.domains.map(o => o.v), '', '## URLs', ...I.urls.map(o => o.v), '', '## User agents', ...I.uas.map(o => o.v), '', '## Email addresses', ...I.emails.map(o => o.v), '', '## File hashes (SHA-256)', ...I.hashes.map(o => o.v + '  ' + o.name), ''].join('\n')) });
+  entries.push({ name: 'detections.csv', data: enc([csvRow(['step', 'severity', 'title', 'tactic', 'technique', 'source', 'destination', 'first_seen_utc', 'summary'])].concat(cap.flow ? cap.flow.steps.map((st, i) => csvRow([i + 1, st.d.sev, st.d.title, STAGES.find(x => x.k === st.d.stage).name, st.d.tech, st.d.src, st.d.dst, new Date(st.d.t0 * 1000).toISOString(), st.d.summary])) : []).join('\n') + '\n') });
+  const exe = A.files.filter(f => f.kind === 'exe' || f.kind === 'script').length;
+  entries.push({ name: 'README.txt', data: enc(['Artifacts extracted by Deepacket from ' + cap.name, 'Exported ' + new Date().toISOString(), '', A.files.length + ' files in files/, sorted by type (' + Object.entries(A.files.reduce((m, f) => (m[KIND_FOLDER[f.kind]] = (m[KIND_FOLDER[f.kind]] || 0) + 1, m), {})).map(([k, v]) => k + ': ' + v).join(', ') + ')', 'manifest.csv     type, size, MD5, SHA-256, origin and flags for every file', 'credentials.csv  ' + A.creds.length + ' credentials and secrets seen in cleartext', 'detections.csv   the attack flow, one row per step', 'indicators.txt   IPs, domains, URLs, user agents, emails and hashes', '', exe ? 'WARNING: ' + exe + ' file(s) in files/executables and files/scripts may be malicious. Do not run them outside an isolated analysis machine.' : '', ''].join('\n')) });
+  return { filename: 'deepacket_' + base.replace(/[^\w.-]+/g, '_') + '_artifacts.zip', blob: makeZip(entries), n: A.files.length };
 }
 function saveFileArt(f) {
   const ext = (f.name.match(/\.(\w+)$/) || [])[1] || '';
@@ -52,7 +81,8 @@ function renderArtifacts() {
   if (!cap.art) { el.innerHTML = '<div class="empty">Reassembling streams and extracting files…</div>'; ensureArt(); return; }
   const A = cap.art, st = S.art;
   const counts = { files: A.files.filter(f => f.interesting).length, creds: A.creds.length, iocs: A.iocs.domains.length + A.iocs.urls.length + A.iocs.hashes.length, hosts: A.inv.filter(h => h.internal).length };
-  el.innerHTML = `<div class="subnav">${[['files', 'Files'], ['creds', 'Credentials'], ['iocs', 'Indicators'], ['hosts', 'Hosts & software']].map(([k, l]) => `<button class="${st.sub === k ? 'on' : ''}" data-sub="${k}">${l}<span class="num">${counts[k]}</span></button>`).join('')}<span class="sp"></span><span class="hint">Covers the whole capture, regardless of filters</span></div><div id="artbody"></div>`;
+  el.innerHTML = `<div class="subnav">${[['files', 'Files'], ['creds', 'Credentials'], ['iocs', 'Indicators'], ['hosts', 'Hosts & software']].map(([k, l]) => `<button class="${st.sub === k ? 'on' : ''}" data-sub="${k}">${l}<span class="num">${counts[k]}</span></button>`).join('')}<span class="sp"></span><span class="hint">Covers the whole capture, regardless of filters</span><button class="btn sm primary" id="dlEverything" style="margin:0 0 8px 12px">Download all artifacts (.zip)</button></div><div id="artbody"></div>`;
+  $('#dlEverything').onclick = () => { const b = artifactsBundle(); offerSave(b.filename, b.blob); };
   $$('.subnav [data-sub]', el).forEach(b => b.onclick = () => { st.sub = b.dataset.sub; renderArtifacts(); });
   ({ files: artFiles, creds: artCreds, iocs: artIocs, hosts: artHosts })[st.sub]();
 }

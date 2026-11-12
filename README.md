@@ -104,6 +104,8 @@ Everything worth keeping from the capture, in four parts.
 
 **Files.** Reassembled from HTTP (including chunked and gzip-encoded bodies, form and multipart uploads), FTP data channels, SMTP attachments and raw TCP transfers. Each file shows its real type from its contents, its size, where it came from, MD5 and SHA-256 hashes and a VirusTotal lookup link. Executables and scripts are flagged, and an executable pretending to be an image or document is flagged critical. Images open in a gallery. Executables are never rendered and are saved inside a .zip so they cannot be opened by accident.
 
+**Download all artifacts (.zip)**, at the top of the tab, saves everything in one archive: every recovered file sorted into `files/executables`, `files/images`, `files/documents`, `files/archives` and so on, plus `manifest.csv` (type, size, MD5, SHA-256, origin and flags per file), `credentials.csv`, `detections.csv` and `indicators.txt`.
+
 <p align="center"><img src="docs/screenshots/artifacts-files.png" alt="Recovered files" width="820"></p>
 <p align="center"><img src="docs/screenshots/artifacts-gallery.png" alt="Image gallery" width="820"></p>
 

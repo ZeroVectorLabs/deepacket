@@ -12,9 +12,9 @@
 </p>
 
 <p align="center">
-  <a href="https://avijw96.github.io/deepacket/"><b>Open Deepacket in your browser</b></a>
+  <a href="https://zerovectorlabs.github.io/deepacket/"><b>Open Deepacket in your browser</b></a>
   &nbsp;·&nbsp;
-  <a href="https://avijw96.github.io/deepacket/attack_scenario.pcap">Download the sample attack capture</a>
+  <a href="https://zerovectorlabs.github.io/deepacket/attack_scenario.pcap">Download the sample attack capture</a>
 </p>
 
 <p align="center">
@@ -56,7 +56,7 @@ It is a single HTML file with no server, no install and no network requests. The
 
 ## Quick start
 
-**Online:** open **https://avijw96.github.io/deepacket/** and drop a capture on the page. The site is the same single HTML file served by GitHub Pages; your capture is still decoded locally and never uploaded.
+**Online:** open **https://zerovectorlabs.github.io/deepacket/** and drop a capture on the page. The site is the same single HTML file served by GitHub Pages; your capture is still decoded locally and never uploaded.
 
 **Offline:** download [`dist/deepacket.html`](dist/deepacket.html), open it in Chrome, Edge, Firefox or Safari, and drop a capture anywhere on the page or click **Choose a capture file**.
 
@@ -242,3 +242,10 @@ dist/             the built single-file app (generated, committed)
 - 802.11 and radiotap captures are listed but not decoded.
 - IP fragments are shown but not reassembled.
 - Operating-system guesses come from TTL values and are approximate.
+
+---
+
+<p align="center">
+  <a href="https://github.com/ZeroVectorLabs"><img src="assets/zerovector-128.png" width="72" alt="ZeroVector logo"></a><br>
+  Deepacket is made by <a href="https://github.com/ZeroVectorLabs"><b>ZeroVector</b></a>.
+</p>

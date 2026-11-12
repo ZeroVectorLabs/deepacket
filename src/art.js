@@ -23,7 +23,14 @@ function ensureArt() {
 }
 (async () => { try { S.dl = window.claude && typeof window.claude.use === 'function' ? await window.claude.use('downloads') : null; } catch (e) { S.dl = null; } if (S.cap && S.view === 'artifacts') { S.dirty.artifacts = 1; render(); } })();
 
+const NATIVE_DL = (() => { try { return window.top === window.self; } catch (e) { return false; } })();
+const canSave = () => !!S.dl || NATIVE_DL;
 async function offerSave(filename, data) {
+  if (!S.dl && NATIVE_DL) { // a normal top-level page (GitHub Pages, opened from disk): use the browser's own download
+    const url = URL.createObjectURL(data instanceof Blob ? data : new Blob([data]));
+    const a = document.createElement('a'); a.href = url; a.download = filename; document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 30000); return;
+  }
   if (!S.dl) { toast('Saving files is not available in this view.'); return; }
   try { await S.dl.save({ filename, data }); }
   catch (e) { if (e && e.code === 'declined') return; toast(e && e.code === 'rejected_extension' ? 'That file type cannot be saved here.' : 'Could not save: ' + ((e && (e.message || e.code)) || e)); }
@@ -57,7 +64,7 @@ function artFiles() {
   if (st.sel === null || !list.some(f => f.id === st.sel)) st.sel = list.length ? (list.find(f => f.flags.some(x => x.sev === 'critical')) || list.find(f => f.flags.length) || list[0]).id : null;
   body.innerHTML = `<div class="atools"><div class="kchips">${KIND_FILTERS.map(([k, l, fn]) => { const n = A.files.filter(fn).length; return n || k === 'interesting' ? `<button class="${st.kf === k ? 'on' : ''}" data-kf="${k}">${l} <span class="num">${n}</span></button>` : ''; }).join('')}</div><span class="sp"></span>
     <div class="seg"><button data-v="list" class="${st.view === 'list' ? 'on' : ''}">List</button><button data-v="gallery" class="${st.view === 'gallery' ? 'on' : ''}">Image gallery</button></div>
-    ${S.dl && list.length ? `<button class="btn sm" id="dlall">Save these ${list.length} as .zip</button>` : ''}</div>
+    ${canSave() && list.length ? `<button class="btn sm" id="dlall">Save these ${list.length} as .zip</button>` : ''}</div>
     <div class="artgrid"><div id="flist"></div><div class="card fprev" id="fprev"></div></div>`;
   $$('[data-kf]', body).forEach(b => b.onclick = () => { st.kf = b.dataset.kf; artFiles(); });
   $$('.seg [data-v]', body).forEach(b => b.onclick = () => { st.view = b.dataset.v; if (st.view === 'gallery') st.kf = 'image'; artFiles(); });
@@ -93,8 +100,8 @@ function filePreview() {
     <dt>Transfer</dt><dd>${esc(f.via)}${f.encoding ? ', ' + esc(f.encoding) + ' decoded' : ''}</dd>${f.url ? `<dt>Source</dt><dd class="mono" style="word-break:break-all">${esc(f.url)}</dd>` : ''}${f.email ? `<dt>Email</dt><dd>${esc(f.email)}</dd>` : ''}
     <dt>From → to</dt><dd class="mono">${esc(o.src)} → ${esc(o.dst)}</dd><dt>Seen</dt><dd>${f.occ.length > 1 ? f.occ.length + ' times, first ' : ''}+${fmtRel(o.t - S.cap.t0, S.cap.dur)} (${clock(o.t).slice(0, 8)})</dd>
     <dt>MD5</dt><dd class="mono hash">${f.md5}</dd><dt>SHA-256</dt><dd class="mono hash">${f.sha256}</dd></dl>
-    <div class="acts">${S.dl ? `<button class="btn sm primary" id="fsave">${f.kind === 'exe' || f.kind === 'script' || !DIRECT_EXT.test((f.name.match(/\.(\w+)$/) || [])[1] || '') ? 'Save as .zip' : 'Save file'}</button>` : ''}<button class="btn sm" id="fcopy">Copy SHA-256</button><a class="btn sm" href="https://www.virustotal.com/gui/file/${f.sha256}" target="_blank" rel="noopener">Look up hash on VirusTotal ${SVGI(IC.ext, 12)}</a>${o.stream !== undefined ? `<button class="btn sm ghost" id="ffollow">Follow stream</button><button class="btn sm ghost" id="fpk">Show packets</button>` : ''}</div>
-    ${!S.dl ? '<p class="hint" style="margin:10px 0 0">Saving files is available when the page is opened on claude.ai.</p>' : ''}</div>`;
+    <div class="acts">${canSave() ? `<button class="btn sm primary" id="fsave">${f.kind === 'exe' || f.kind === 'script' || !DIRECT_EXT.test((f.name.match(/\.(\w+)$/) || [])[1] || '') ? 'Save as .zip' : 'Save file'}</button>` : ''}<button class="btn sm" id="fcopy">Copy SHA-256</button><a class="btn sm" href="https://www.virustotal.com/gui/file/${f.sha256}" target="_blank" rel="noopener">Look up hash on VirusTotal ${SVGI(IC.ext, 12)}</a>${o.stream !== undefined ? `<button class="btn sm ghost" id="ffollow">Follow stream</button><button class="btn sm ghost" id="fpk">Show packets</button>` : ''}</div>
+    ${!canSave() ? '<p class="hint" style="margin:10px 0 0">Saving files is not available in this view.</p>' : ''}</div>`;
   if ($('#fsave')) $('#fsave').onclick = () => saveFileArt(f);
   $('#fcopy').onclick = () => navigator.clipboard.writeText(f.sha256).then(() => toast('SHA-256 copied'), () => toast('Clipboard unavailable'));
   if ($('#ffollow')) { $('#ffollow').onclick = () => followStream(o.stream); $('#fpk').onclick = () => { setExpr('stream:' + o.stream); go('packets'); }; }
@@ -110,10 +117,10 @@ function zipNames(d) { const out = []; let p = 0; while (p + 30 < d.length && ou
 function artCreds() {
   const A = S.cap.art, st = S.art, body = $('#artbody');
   const csv = () => 'time,protocol,client,server,username,secret,where\n' + A.creds.map(c => [clock(c.t), c.proto, c.src, c.dst, c.user, c.pw, c.extra || ''].map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\n');
-  body.innerHTML = `<div class="atools"><p class="hint" style="margin:0;max-width:90ch">Credentials and secrets that crossed the network without encryption. Anyone on the path could read them, so treat each one as compromised.</p><span class="sp"></span><button class="btn sm" id="crev">${st.revealAll ? 'Hide' : 'Reveal'} all secrets</button>${S.dl ? '<button class="btn sm" id="ccsv">Save as .csv</button>' : '<button class="btn sm" id="ccsv">Copy as CSV</button>'}</div>
+  body.innerHTML = `<div class="atools"><p class="hint" style="margin:0;max-width:90ch">Credentials and secrets that crossed the network without encryption. Anyone on the path could read them, so treat each one as compromised.</p><span class="sp"></span><button class="btn sm" id="crev">${st.revealAll ? 'Hide' : 'Reveal'} all secrets</button>${canSave() ? '<button class="btn sm" id="ccsv">Save as .csv</button>' : '<button class="btn sm" id="ccsv">Copy as CSV</button>'}</div>
   ${A.creds.length ? `<div class="card"><table class="tbl"><thead><tr><th class="r">Time</th><th>Protocol</th><th>Client</th><th>Server</th><th>Username</th><th>Password or secret</th><th>Where</th><th></th></tr></thead><tbody>${A.creds.map(c => { const shown = st.revealAll || st.reveal.has(c.id); return `<tr data-c="${c.id}"><td class="r">+${fmtRel(c.t - S.cap.t0, S.cap.dur)}</td><td><b style="font-weight:600">${esc(c.proto)}</b></td><td class="mono">${esc(c.src)}</td><td class="mono">${esc(c.dst)}</td><td class="mono">${esc(c.user || '—')}</td><td class="mono secret">${esc(shown ? c.pw : mask(c.pw))} <button class="btn sm ghost" data-rv="${c.id}">${shown ? 'Hide' : 'Reveal'}</button></td><td class="mono ell" style="max-width:220px">${esc(c.extra || '')}</td><td><button class="btn sm ghost" data-pk="${c.id}">Packet</button></td></tr>`; }).join('')}</tbody></table></div>` : '<div class="empty">No cleartext credentials were found. Logins over TLS, SSH and other encrypted protocols cannot be read from a capture.</div>'}`;
   $('#crev').onclick = () => { st.revealAll = !st.revealAll; artCreds(); };
-  $('#ccsv').onclick = () => S.dl ? offerSave('deepacket_credentials.csv', csv()) : navigator.clipboard.writeText(csv()).then(() => toast('Copied ' + A.creds.length + ' rows as CSV'), () => toast('Clipboard unavailable'));
+  $('#ccsv').onclick = () => canSave() ? offerSave('deepacket_credentials.csv', csv()) : navigator.clipboard.writeText(csv()).then(() => toast('Copied ' + A.creds.length + ' rows as CSV'), () => toast('Clipboard unavailable'));
   $$('[data-rv]', body).forEach(b => b.onclick = e => { e.stopPropagation(); const id = +b.dataset.rv; st.reveal.has(id) ? st.reveal.delete(id) : st.reveal.add(id); artCreds(); });
   $$('[data-pk]', body).forEach(b => b.onclick = () => { const c = A.creds.find(x => x.id === +b.dataset.pk); if (c && c.ev && c.ev[0] !== undefined) { go('packets'); selectPacket(c.ev[0], true); } });
 }
@@ -123,7 +130,7 @@ function artIocs() {
   const txt = () => ['# Deepacket indicators — ' + S.cap.name, '', '## External IP addresses', ...I.ips.map(o => o.v), '', '## Domains', ...I.domains.map(o => o.v), '', '## URLs', ...I.urls.map(o => o.v), '', '## User agents', ...I.uas.map(o => o.v), '', '## Email addresses', ...I.emails.map(o => o.v), '', '## File hashes (SHA-256)', ...I.hashes.map(o => o.v + '  ' + o.name)].join('\n');
   const bad = b => b ? ' <span class="sev high" style="padding:0 6px">' + SVGI(SEV_ICON.high, 12) + 'Linked to a detection</span>' : '';
   const card = (title, sub, head, rows) => `<div class="card c6"><div class="card-h"><h3>${title}</h3><span class="sub">${sub}</span></div><div class="card-b"><div class="scroll" style="max-height:360px"><table class="tbl"><thead><tr>${head}</tr></thead><tbody>${rows || '<tr><td class="empty" colspan="4">None found</td></tr>'}</tbody></table></div></div></div>`;
-  body.innerHTML = `<div class="atools"><p class="hint" style="margin:0;max-width:90ch">Everything external this capture touched, ready to paste into a blocklist, SIEM search or threat-intel lookup.</p><span class="sp"></span><button class="btn sm" id="icopy">Copy all as text</button>${S.dl ? '<button class="btn sm" id="isave">Save as .txt</button>' : ''}</div>
+  body.innerHTML = `<div class="atools"><p class="hint" style="margin:0;max-width:90ch">Everything external this capture touched, ready to paste into a blocklist, SIEM search or threat-intel lookup.</p><span class="sp"></span><button class="btn sm" id="icopy">Copy all as text</button>${canSave() ? '<button class="btn sm" id="isave">Save as .txt</button>' : ''}</div>
   <div class="grid">
   ${card('External IP addresses', I.ips.length + ' addresses', '<th>Address</th><th class="r">Packets</th><th class="r">Bytes</th>', I.ips.slice(0, 300).map(o => `<tr data-ip="${esc(o.v)}"><td class="mono">${esc(o.v)} ${roleTag(o.v)}</td><td class="r">${fmtNum(o.n)}</td><td class="r">${fmtBytes(o.bytes)}</td></tr>`).join('') + (I.ips.length > 300 ? `<tr><td colspan="3" class="hint">${I.ips.length - 300} more in the text export</td></tr>` : ''))}
   ${card('Domains', I.domains.length + ' names from DNS, TLS and HTTP', '<th>Domain</th><th>Seen in</th><th class="r">Times</th>', I.domains.map(o => `<tr><td class="mono">${esc(o.v)}${bad(o.bad)}${o.note ? `<div class="hint">${esc(o.note)}</div>` : ''}</td><td>${esc(o.src)}</td><td class="r">${fmtNum(o.n)}</td></tr>`).join(''))}

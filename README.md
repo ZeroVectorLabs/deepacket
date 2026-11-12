@@ -12,6 +12,12 @@
 </p>
 
 <p align="center">
+  <a href="https://avijw96.github.io/deepacket/"><b>Open Deepacket in your browser</b></a>
+  &nbsp;·&nbsp;
+  <a href="https://avijw96.github.io/deepacket/attack_scenario.pcap">Download the sample attack capture</a>
+</p>
+
+<p align="center">
   <img src="docs/screenshots/overview.png" alt="Deepacket overview of a capture" width="900">
 </p>
 
@@ -50,9 +56,9 @@ It is a single HTML file with no server, no install and no network requests. The
 
 ## Quick start
 
-1. Download [`dist/deepacket.html`](dist/deepacket.html) (or clone the repo).
-2. Open it in Chrome, Edge, Firefox or Safari.
-3. Drop a capture anywhere on the page, or click **Choose a capture file**.
+**Online:** open **https://avijw96.github.io/deepacket/** and drop a capture on the page. The site is the same single HTML file served by GitHub Pages; your capture is still decoded locally and never uploaded.
+
+**Offline:** download [`dist/deepacket.html`](dist/deepacket.html), open it in Chrome, Edge, Firefox or Safari, and drop a capture anywhere on the page or click **Choose a capture file**.
 
 Want to see it work first? Click **Open the sample attack** on the start page. It loads a built-in capture containing a full intrusion.
 
@@ -201,7 +207,7 @@ npm run test:browser    # browser smoke test; needs `pip install playwright` and
 npm run sample          # regenerate samples/attack_scenario.pcap (needs scapy and Pillow)
 ```
 
-Edit files in `src/`, run `npm run build`, and commit the rebuilt `dist/deepacket.html` together with your source changes. CI runs the tests and `python3 tools/build.py --check`, which fails if the committed bundle is stale.
+Edit files in `src/`, run `npm run build`, and commit the rebuilt `dist/deepacket.html` together with your source changes. Every push to `main` that changes `dist/` redeploys the live site through `.github/workflows/pages.yml`. CI runs the tests and `python3 tools/build.py --check`, which fails if the committed bundle is stale.
 
 ## Project layout
 

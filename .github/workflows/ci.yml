@@ -17,10 +17,8 @@ jobs:
           python-version: '3.12'
       - name: Engine tests
         run: npm test
-      - name: Build bundle
-        run: npm run build
       - name: Check the committed bundle is up to date
-        run: git diff --exit-code -- dist/deepacket.html || (echo "dist/deepacket.html is stale. Run 'npm run build' and commit it." && exit 1)
+        run: python3 tools/build.py --check
       - name: Browser smoke test
         run: |
           pip install playwright

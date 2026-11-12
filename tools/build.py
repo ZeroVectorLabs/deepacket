@@ -13,6 +13,22 @@ fonts = ff('Archivo','archivo.woff2','100 900','font-stretch:62% 125%;') + ff('I
 logo = lambda n: 'data:image/png;base64,' + base64.b64encode((ROOT / 'assets' / f'logo-{n}.png').read_bytes()).decode()
 html = html.replace('/*FONTS*/', fonts).replace('/*LOGO64*/', logo(64)).replace('/*LOGO256*/', logo(256))
 html = html.replace('/*CSS*/', (src/'style.css').read_text()).replace('/*JS*/', js).replace('/*DEMO*/', demo)
-(ROOT / 'dist').mkdir(exist_ok=True)
-(ROOT / 'dist' / 'deepacket.html').write_text(html)
-print('built', len(html)//1024, 'KB')
+
+def _split(doc):
+    # the embedded sample is gzip output, whose bytes vary between zlib builds; compare it by content
+    a = doc.index('<script id="demo-data" type="application/octet-stream">') + 55
+    b = doc.index('</script>', a)
+    return doc[:a] + doc[b:], gzip.decompress(base64.b64decode(doc[a:b]))
+
+import sys
+out = ROOT / 'dist' / 'deepacket.html'
+if '--check' in sys.argv:
+    fresh_rest, fresh_demo = _split(html)
+    old_rest, old_demo = _split(out.read_text())
+    if fresh_rest != old_rest or fresh_demo != old_demo:
+        sys.exit('dist/deepacket.html is stale. Run `npm run build` and commit it.')
+    print('dist/deepacket.html is up to date')
+else:
+    out.parent.mkdir(exist_ok=True)
+    out.write_text(html)
+    print('built', len(html)//1024, 'KB')

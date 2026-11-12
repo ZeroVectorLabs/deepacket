@@ -201,7 +201,7 @@ npm run test:browser    # browser smoke test; needs `pip install playwright` and
 npm run sample          # regenerate samples/attack_scenario.pcap (needs scapy and Pillow)
 ```
 
-Edit files in `src/`, run `npm run build`, and commit the rebuilt `dist/deepacket.html` together with your source changes. CI runs the tests, rebuilds the bundle and fails if the committed bundle is stale.
+Edit files in `src/`, run `npm run build`, and commit the rebuilt `dist/deepacket.html` together with your source changes. CI runs the tests and `python3 tools/build.py --check`, which fails if the committed bundle is stale.
 
 ## Project layout
 

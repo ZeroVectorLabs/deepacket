@@ -14,7 +14,7 @@ Open `dist/deeppacket.html` in a browser, then drop a capture on the page or cho
 |---|---|
 | Overview | Packets, data, duration, throughput, hosts and flows; traffic over time by protocol; protocols, top talkers, services, packet sizes and TCP flags. A capture strip under the header lets you drag to focus on any time window. |
 | Threats | Heuristic detections mapped to ATT&CK, a kill-chain view, and an attack-flow sequence diagram of attacker, victims and C2. Each detection links to its evidence packets. |
-| Network map | Local network on one side, internet on the other. Single-peer hosts are folded into groups, and attack paths are drawn as arrows. |
+| Network map | A diagram-style map: the internet above the local network, a device box per host (gateway, server, workstation, internet host), orthogonal connectors, and attack paths drawn as numbered arrows. Boxes can be dragged. |
 | Packets | A virtualized packet list with Wireshark-style filters, a protocol tree linked to a hex view, and TCP stream reassembly. |
 | Artifacts | Files recovered from HTTP, FTP, SMTP and raw TCP (with MD5/SHA-256 and an image gallery); cleartext credentials and secrets; indicators (IPs, domains, URLs, user agents, emails, hashes); and a host inventory with OS guesses, services and software banners. |
 | DNS, TLS & HTTP | Queried domains, TLS server names and cleartext HTTP requests. |

@@ -533,9 +533,9 @@ function followStream(id) {
 function renderConversations() {
   const el = $('#view-conversations'), A = S.A, cap = S.cap;
   el.innerHTML = `<div class="grid">
-    <div class="card c8 graphcard"><div class="gtools"><button class="btn sm" id="gfit">${SVGI(IC.reset, 14)}Reset layout</button></div>
-      <canvas id="gcv"></canvas>
-      <div class="glegend"><span><svg width="12" height="12"><circle cx="6" cy="6" r="5" fill="var(--s1)"/></svg>Local host</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="none" stroke="var(--s7)" stroke-width="2"/></svg>Internet host</span><span><svg width="12" height="12"><rect x="1.5" y="1.5" width="9" height="9" fill="var(--s0)"/></svg>Broadcast or multicast</span><span><svg width="12" height="12"><circle cx="6" cy="6" r="4.5" fill="none" stroke="var(--muted)" stroke-dasharray="2 2"/></svg>Group of hosts</span><span><svg width="22" height="10"><path d="M1 5h15" stroke="var(--crit)" stroke-width="2"/><path d="M15 1l6 4-6 4z" fill="var(--crit)"/></svg>Attack path</span><span class="hint">Hover a host to see its traffic. Double-click to filter.</span></div></div>
+    <div class="card c8 graphcard"><div class="gtools"><button class="btn sm" id="gfit">${SVGI(IC.reset, 14)}Tidy layout</button></div>
+      <div class="gmap" id="gmap"></div>
+      <div class="glegend">${[['workstation', 'var(--s1)', 'Workstation'], ['server', 'var(--s3)', 'Server'], ['router', 'var(--teal)', 'Gateway'], ['globe', 'var(--s7)', 'Internet host'], ['cloud', 'var(--s7)', 'Group of hosts']].map(([i, c, l]) => `<span><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="${c}" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">${MAP_ICON[i]}</svg>${l}</span>`).join('')}<span><svg width="24" height="10"><path d="M1 5h16" stroke="var(--crit)" stroke-width="2"/><path d="M16 1l6 4-6 4z" fill="var(--crit)"/></svg>Attack path, numbered by step</span><span class="hint">Drag boxes to rearrange. Scroll to zoom.</span></div></div>
     <div class="c4 side"><div class="card" id="gside"></div></div>
     <div class="card c12"><div class="card-h"><h3>Flows</h3><span class="sub">${fmtNum(A.streams.size)} TCP and UDP streams, largest 300 shown</span></div><div class="card-b"><div class="scroll" style="max-height:480px"><table class="tbl" id="flowtbl"></table></div></div></div>
   </div>`;
@@ -545,7 +545,7 @@ function renderConversations() {
   $('#flowtbl').onclick = e => { const b = e.target.closest('[data-follow]'); if (b) { followStream(+b.dataset.follow); return; } const tr = e.target.closest('tr[data-st]'); if (tr) { setExpr('stream:' + tr.dataset.st); go('packets'); } };
   sideDefault();
   if (S.graph) S.graph.destroy();
-  S.graph = makeGraph($('#gcv'));
+  S.graph = makeGraph($('#gmap'));
   S.graph.active = S.view === 'conversations';
   $('#gfit').onclick = () => S.graph.relayout();
 }

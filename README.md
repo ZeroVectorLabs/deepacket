@@ -5,6 +5,14 @@
 <h1 align="center">Deepacket</h1>
 
 <p align="center">
+  <a href="https://zerovectorlabs.github.io/deepacket/"><img src="https://img.shields.io/badge/try_it-live_in_your_browser-22d3ee?style=flat-square" alt="Try it live"></a>
+  <a href="https://github.com/ZeroVectorLabs/deepacket/releases/latest"><img src="https://img.shields.io/github/v/release/ZeroVectorLabs/deepacket?style=flat-square&color=22d3ee" alt="Latest release"></a>
+  <a href="LICENSE"><img src="https://img.shields.io/badge/license-MIT-22d3ee?style=flat-square" alt="MIT license"></a>
+  <a href="https://github.com/ZeroVectorLabs/deepacket/actions/workflows/ci.yml"><img src="https://img.shields.io/github/actions/workflow/status/ZeroVectorLabs/deepacket/ci.yml?branch=main&style=flat-square&label=tests" alt="Tests"></a>
+  <a href="https://github.com/ZeroVectorLabs/deepacket/stargazers"><img src="https://img.shields.io/github/stars/ZeroVectorLabs/deepacket?style=flat-square&color=22d3ee" alt="GitHub stars"></a>
+</p>
+
+<p align="center">
   <b>Open a capture. Find the attack in it.</b><br>
   A packet-capture analyzer that runs entirely in your browser: traffic analytics, a network diagram,
   threat detection mapped to MITRE ATT&amp;CK, attack-flow reconstruction, and extraction of files,
@@ -45,6 +53,8 @@
 - [Development](#development)
 - [Project layout](#project-layout)
 - [Limitations](#limitations)
+- [Contributing](#contributing)
+- [License](#license)
 
 ## Why Deepacket
 
@@ -246,6 +256,16 @@ dist/             the built single-file app (generated, committed)
 - 802.11 and radiotap captures are listed but not decoded.
 - IP fragments are shown but not reassembled.
 - Operating-system guesses come from TTL values and are approximate.
+
+## Contributing
+
+Bug reports, captures that trip it up, and new detections are all welcome. [Open an issue](https://github.com/ZeroVectorLabs/deepacket/issues/new) with what you expected and what you saw; if you can share a small capture that reproduces it, attach it (strip anything sensitive first). For code, see [Development](#development): edit `src/`, run `npm test` and `npm run build`, and commit the rebuilt bundle with your change.
+
+If Deepacket saved you time, **[star the repo](https://github.com/ZeroVectorLabs/deepacket/stargazers)** so other analysts can find it.
+
+## License
+
+[MIT](LICENSE). Embedded fonts are under the SIL Open Font License (see `fonts/`).
 
 ---
 

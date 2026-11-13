@@ -208,7 +208,7 @@ Regenerate it with `npm run sample` (needs Python with scapy and Pillow). The ou
 
 ## Privacy
 
-Deepacket makes no network requests. The fonts and the sample are embedded in the HTML file, and captures are decoded with JavaScript in the page. Nothing you open is uploaded or stored. The only links that leave the page are the MITRE ATT&amp;CK technique links and the VirusTotal hash lookups, which open in a new tab and send only the technique ID or hash.
+Deepacket makes no network requests. The fonts and the sample are embedded in the HTML file, and captures are decoded with JavaScript in the page. Nothing you open is uploaded or stored. The only links that leave the page are the MITRE ATT&amp;CK technique links, the VirusTotal hash lookups and the link to this repository; they open in a new tab only when you click them, and the first two send only the technique ID or hash.
 
 ## Development
 
@@ -261,7 +261,7 @@ dist/             the built single-file app (generated, committed)
 
 Bug reports, captures that trip it up, and new detections are all welcome. [Open an issue](https://github.com/ZeroVectorLabs/deepacket/issues/new) with what you expected and what you saw; if you can share a small capture that reproduces it, attach it (strip anything sensitive first). For code, see [Development](#development): edit `src/`, run `npm test` and `npm run build`, and commit the rebuilt bundle with your change.
 
-If Deepacket saved you time, **[star the repo](https://github.com/ZeroVectorLabs/deepacket/stargazers)** so other analysts can find it.
+If Deepacket saved you time, **star the repo** so other analysts can find it, and **Watch → Custom → Releases** to hear about new detections.
 
 ## License
 

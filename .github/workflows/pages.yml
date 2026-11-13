@@ -33,6 +33,8 @@ jobs:
           cp dist/deepacket.html _site/index.html
           cp samples/attack_scenario.pcap _site/attack_scenario.pcap
           cp assets/logo-256.png _site/logo.png
+          cp assets/og.png _site/og.png
+          printf '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9"><url><loc>https://zerovectorlabs.github.io/deepacket/</loc><lastmod>%s</lastmod></url></urlset>\n' "$(date -u +%F)" > _site/sitemap.xml
           touch _site/.nojekyll
       - uses: actions/configure-pages@v5
       - uses: actions/upload-pages-artifact@v3

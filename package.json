@@ -2,6 +2,7 @@
   "name": "deepacket",
   "version": "0.1.0",
   "private": true,
+  "license": "MIT",
   "description": "Browser-based PCAP visualizer with threat detection, attack-flow reconstruction and artifact extraction.",
   "scripts": {
     "build": "python3 tools/build.py",
